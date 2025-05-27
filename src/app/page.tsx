@@ -1,12 +1,11 @@
 import { db } from '../db/index'
-import { events, users } from '../db/drizzle/schema'
+import { events } from '../db/drizzle/schema'
 import { eq } from 'drizzle-orm';
 import EventForm from './ui/EventForm';
 import { revalidatePath } from 'next/cache';
 import DeleteButton from './ui/DeleteButton';
 export default async function Page() {
   const allEvents = await db.select().from(events);
-  const allUsers = await db.select().from(users);
 
   async function createEvent(formData: FormData) {
     'use server';
