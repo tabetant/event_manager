@@ -4,6 +4,8 @@ import { eq } from 'drizzle-orm';
 import EventForm from './ui/EventForm';
 import { revalidatePath } from 'next/cache';
 import DeleteButton from './ui/DeleteButton';
+import EditButton from './ui/EditButton';
+
 export default async function Page() {
   const allEvents = await db.select().from(events);
 
@@ -27,6 +29,24 @@ export default async function Page() {
     revalidatePath('/');
   }
 
+  async function editEvent(formData: FormData) {
+    'use server';
+    const id = Number(formData.get('id'));
+    const component = formData.get('component') as string;
+    if (component === 'title') {
+      const newTitle = formData.get('newValue') as string;
+      await db.update(events).set({ title: newTitle }).where(eq(events.id, id));
+    }
+    else if (component === 'date') {
+      const newDate = new Date(formData.get('newValue') as string);
+      await db.update(events).set({ date: newDate }).where(eq(events.id, id));
+    }
+    else {
+      return;
+    }
+    revalidatePath('/');
+  }
+
   return (
     <div>
       <EventForm createEventAction={createEvent} />
@@ -34,7 +54,7 @@ export default async function Page() {
       <ul>
         {allEvents.map(event => (
           <li key={event.id}>
-            {event.title} - {event.date.toISOString()} <DeleteButton deleteEventAction={deleteEvent} id={event.id} />
+            {event.title} - {event.date.toISOString()} <DeleteButton deleteEventAction={deleteEvent} id={event.id} /> <EditButton editEventAction={editEvent} id={event.id} />
           </li>
         ))}
       </ul>
