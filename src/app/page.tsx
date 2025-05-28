@@ -1,47 +1,14 @@
 import { db } from '../db/index'
 import { events } from '../db/drizzle/schema'
-import { eq, gt, asc, desc } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import EventForm from './ui/EventForm';
 import { revalidatePath } from 'next/cache';
 import DeleteButton from './ui/DeleteButton';
 import EditButton from './ui/EditButton';
 import SortButton from './ui/SortButton'
-import { Lexend_Peta } from 'next/font/google';
 
-type Props = {
-  searchParams: { [key: string]: string | string[] | undefined };
-};
 
-export default async function Page({ searchParams }: Props) {
-  const sort = Array.isArray(searchParams.sort) ? searchParams.sort[0] : searchParams.sort ?? 'event_date';
-  const filter = Array.isArray(searchParams.filter) ? searchParams.filter[0] : searchParams.filter ?? 'none';
-
-  const validSorts = ['event_date', 'created_date'];
-  const validFilters = ['none', 'upcoming'];
-
-  if (!validSorts.includes(sort) || !validFilters.includes(filter)) {
-    throw new Error('Invalid sort or filter option');
-  }
-
-  // Build the WHERE clause
-  const whereClause =
-    filter === 'upcoming' ? gt(events.date, new Date()) : undefined;
-
-  // Build the ORDER clause
-  const orderClause =
-    sort === 'event_date'
-      ? asc(events.date)
-      : asc(events.createdAt); // default to created_date if invalid
-
-  // Build the full query
-  const allEvents =
-    whereClause !== undefined
-      ? await db
-        .select()
-        .from(events)
-        .where(whereClause)
-        .orderBy(orderClause)
-      : await db.select().from(events).orderBy(orderClause);
+export default async function Page() {
 
   async function createEvent(formData: FormData) {
     'use server';
