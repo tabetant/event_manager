@@ -5,6 +5,7 @@ import EventForm from './ui/EventForm';
 import { revalidatePath } from 'next/cache';
 import DeleteButton from './ui/DeleteButton';
 import EditButton from './ui/EditButton';
+import SortButton from './ui/SortButton'
 
 export default async function Page() {
   const allEvents = await db.select().from(events);
@@ -51,6 +52,7 @@ export default async function Page() {
     <div>
       <EventForm createEventAction={createEvent} />
       <h1 className='text-2xl font-bold'>Event List</h1>
+      <SortButton />
       <ul>
         {allEvents.map(event => (
           <li key={event.id}>
