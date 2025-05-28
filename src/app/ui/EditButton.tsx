@@ -13,7 +13,7 @@ export default function EditButton({ editEventAction, id }: Props) {
                 <option value='date'>Date</option>
             </select>
             <input type="text" name='newValue' placeholder='enter edited field' />
-            <button type="submit">Edit Event</button>
+            <button className='bg-yellow-500' type="submit"><strong>Edit Event</strong></button>
         </form>
     )
 }

@@ -50,11 +50,14 @@ export default async function Page() {
   return (
     <div>
       <EventForm createEventAction={createEvent} />
-      <h1>Event List</h1>
+      <h1 className='text-2xl font-bold'>Event List</h1>
       <ul>
         {allEvents.map(event => (
           <li key={event.id}>
-            {event.title} - {event.date.toISOString()} <DeleteButton deleteEventAction={deleteEvent} id={event.id} /> <EditButton editEventAction={editEvent} id={event.id} />
+            <div className='text-blue-500'>
+              {event.title} - {event.date.toISOString()}
+            </div>
+            <DeleteButton deleteEventAction={deleteEvent} id={event.id} /> <EditButton editEventAction={editEvent} id={event.id} />
           </li>
         ))}
       </ul>
