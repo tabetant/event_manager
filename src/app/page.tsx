@@ -13,8 +13,8 @@ type Props = {
 };
 
 export default async function Page({ searchParams }: Props) {
-  const sort = searchParams.sort ?? 'event_date';
-  const filter = searchParams.filter ?? 'none';
+  const sort = Array.isArray(searchParams.sort) ? searchParams.sort[0] : searchParams.sort ?? 'event_date';
+  const filter = Array.isArray(searchParams.filter) ? searchParams.filter[0] : searchParams.filter ?? 'none';
 
   const validSorts = ['event_date', 'created_date'];
   const validFilters = ['none', 'upcoming'];

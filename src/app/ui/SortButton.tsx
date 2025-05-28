@@ -4,7 +4,6 @@ export default function SortButton() {
         <form action='/' method='GET'>
             Sort
             <select name='sort' className='text-right'>
-                <option value='auto'>Auto</option>
                 <option value='event_date'>Event Date</option>
                 <option value='created_date'>Creation Date</option>
             </select>
