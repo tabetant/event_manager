@@ -1,14 +1,47 @@
 import { db } from '../db/index'
 import { events } from '../db/drizzle/schema'
-import { eq } from 'drizzle-orm';
+import { eq, gt, asc, desc } from 'drizzle-orm';
 import EventForm from './ui/EventForm';
 import { revalidatePath } from 'next/cache';
 import DeleteButton from './ui/DeleteButton';
 import EditButton from './ui/EditButton';
 import SortButton from './ui/SortButton'
+import { Lexend_Peta } from 'next/font/google';
 
-export default async function Page() {
-  const allEvents = await db.select().from(events);
+type Props = {
+  searchParams: { [key: string]: string | string[] | undefined };
+};
+
+export default async function Page({ searchParams }: Props) {
+  const sort = searchParams.sort ?? 'event_date';
+  const filter = searchParams.filter ?? 'none';
+
+  const validSorts = ['event_date', 'created_date'];
+  const validFilters = ['none', 'upcoming'];
+
+  if (!validSorts.includes(sort) || !validFilters.includes(filter)) {
+    throw new Error('Invalid sort or filter option');
+  }
+
+  // Build the WHERE clause
+  const whereClause =
+    filter === 'upcoming' ? gt(events.date, new Date()) : undefined;
+
+  // Build the ORDER clause
+  const orderClause =
+    sort === 'event_date'
+      ? asc(events.date)
+      : asc(events.createdAt); // default to created_date if invalid
+
+  // Build the full query
+  const allEvents =
+    whereClause !== undefined
+      ? await db
+        .select()
+        .from(events)
+        .where(whereClause)
+        .orderBy(orderClause)
+      : await db.select().from(events).orderBy(orderClause);
 
   async function createEvent(formData: FormData) {
     'use server';
@@ -53,16 +86,29 @@ export default async function Page() {
       <EventForm createEventAction={createEvent} />
       <h1 className='text-2xl font-bold'>Event List</h1>
       <SortButton />
-      <ul>
+      <table className='mx-auto'>
+        <thead>
+          <tr>
+            <th>Event</th>
+            <th>Date</th>
+            <th>Edit</th>
+            <th>Delete</th>
+          </tr>
+        </thead>
         {allEvents.map(event => (
-          <li key={event.id}>
-            <div className='text-blue-500'>
-              {event.title} - {event.date.toISOString()}
-            </div>
-            <DeleteButton deleteEventAction={deleteEvent} id={event.id} /> <EditButton editEventAction={editEvent} id={event.id} />
-          </li>
-        ))}
-      </ul>
-    </div>
+          <tr key={event.id}>
+            <td className='px-4 py-2'>{event.title}</td>
+            <td className='px-4 py-2'>{event.date.toISOString()}</td>
+            <td className='px-4 py-2'>
+              <EditButton editEventAction={editEvent} id={event.id} />
+            </td>
+            <td className='px-4 py-2'>
+              <DeleteButton deleteEventAction={deleteEvent} id={event.id} />
+            </td>
+          </tr >
+        ))
+        }
+      </table >
+    </div >
   );
 }
