@@ -73,6 +73,9 @@ export async function PATCH(request: Request) {
     const body = await request.json();
     const id = Number(body.id);
     const component = body.component as string;
+    if (!id || isNaN(id) || !component || !body.newValue) {
+        return new Response('Invalid input', { status: 400 });
+    }
     if (component === 'title') {
         const newTitle = body.newValue as string;
         await db.update(events).set({ title: newTitle }).where(eq(events.id, id));
@@ -84,5 +87,9 @@ export async function PATCH(request: Request) {
     else {
         return;
     }
+    return new Response(JSON.stringify({ message: 'Event updated' }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+    });
 
 }

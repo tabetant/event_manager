@@ -125,6 +125,7 @@ export default function EventsTable() {
                                         }
                                     }))
                                 }}>
+                                    <option value='None'>None</option>
                                     <option value='title'>Title</option>
                                     <option value='date'>Date</option>
                                 </select>
@@ -147,7 +148,8 @@ export default function EventsTable() {
                                     if (!edits[event.id]?.field || !edits[event.id]?.value) {
                                         alert('Please select a field and enter a value.');
                                         return;
-                                    } editEvent(event.id, edits[event.id].field, edits[event.id].value)
+                                    }
+                                    editEvent(event.id, edits[event.id].field, edits[event.id].value)
                                 }}><strong>Edit Event</strong></button>
                             </td>
                             <td className='px-4 py-2'>
