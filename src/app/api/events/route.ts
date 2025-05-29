@@ -37,14 +37,16 @@ export async function POST(request: Request) {
     const title = body.title as string;
     const date = new Date(body.date as string);
 
+    if (!title || !date || isNaN(date.getTime())) {
+        return new Response('Invalid input', { status: 400 });
+    }
+
     await db.insert(events).values({
         title: title as string, // Ensure type compatibility
         date: date, // Use Date object directly if schema expects Date
         createdAt: new Date(),
     })
-    if (!title || !date || isNaN(date.getTime())) {
-        return new Response('Invalid input', { status: 400 });
-    }
+
 
     return new Response(JSON.stringify({ message: 'Event created' }), {
         status: 201,

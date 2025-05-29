@@ -71,6 +71,7 @@ export default function EventsTable() {
     }
 
     async function addEvent(date: string, title: string) {
+        console.log({ title, date });
         const res = await fetch('/api/events', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -109,52 +110,53 @@ export default function EventsTable() {
                         <th>Delete</th>
                     </tr>
                 </thead>
-                {events.map(event => (
-                    <tr key={event.id}>
-                        <td className='px-4 py-2'>{event.title}</td>
-                        <td className='px-4 py-2'>{event.date.toString()}</td>
-                        <td>
-                            <select onChange={(e) => {
-                                setEdits(prev => ({ // updating state based on previous state to avoid overwriting
-                                    ...prev, // keep all previous edits for all events
-                                    [event.id]: { // updates specific event and adds/modifies its data
-                                        ...prev[event.id], // if there is already data for this event keep it
-                                        field: e.target.value, // set/overwrite the field to be what was selected
-                                    }
-                                }))
-                            }}>
-                                <option value='title'>Title</option>
-                                <option value='date'>Date</option>
-                            </select>
-                        </td>
-                        <td>
-                            <input
-                                disabled={!edits[event.id]?.field}
-                                type={edits[event.id]?.field === 'date' ? 'date' : 'text'}
-                                onChange={(e) => {
+                <tbody>
+                    {events.map(event => (
+                        <tr key={event.id}>
+                            <td className='px-4 py-2'>{event.title}</td>
+                            <td className='px-4 py-2'>{event.date.toString()}</td>
+                            <td>
+                                <select onChange={(e) => {
                                     setEdits(prev => ({ // updating state based on previous state to avoid overwriting
                                         ...prev, // keep all previous edits for all events
                                         [event.id]: { // updates specific event and adds/modifies its data
                                             ...prev[event.id], // if there is already data for this event keep it
-                                            value: e.target.value, // set/overwrite the value to be what was selected
+                                            field: e.target.value, // set/overwrite the field to be what was selected
                                         }
                                     }))
-                                }} />
-                        </td>
-                        <td className='px-4 py-2'>
-                            <button onClick={() => {
-                                if (!edits[event.id]?.field || !edits[event.id]?.value) {
-                                    alert('Please select a field and enter a value.');
-                                    return;
-                                } editEvent(event.id, edits[event.id].field, edits[event.id].value)
-                            }}>Edit Event</button>
-                        </td>
-                        <td className='px-4 py-2'>
-                            <button onClick={() => deleteEvent(event)}>Delete</button>
-                        </td>
-                    </tr >
-                ))
-                }
+                                }}>
+                                    <option value='title'>Title</option>
+                                    <option value='date'>Date</option>
+                                </select>
+                            </td>
+                            <td>
+                                <input
+                                    type={edits[event.id]?.field === 'date' ? 'date' : 'text'}
+                                    onChange={(e) => {
+                                        setEdits(prev => ({ // updating state based on previous state to avoid overwriting
+                                            ...prev, // keep all previous edits for all events
+                                            [event.id]: { // updates specific event and adds/modifies its data
+                                                ...prev[event.id], // if there is already data for this event keep it
+                                                value: e.target.value, // set/overwrite the value to be what was selected
+                                            }
+                                        }))
+                                    }} />
+                            </td>
+                            <td className='px-4 py-2'>
+                                <button className='bg-yellow-500' onClick={() => {
+                                    if (!edits[event.id]?.field || !edits[event.id]?.value) {
+                                        alert('Please select a field and enter a value.');
+                                        return;
+                                    } editEvent(event.id, edits[event.id].field, edits[event.id].value)
+                                }}><strong>Edit Event</strong></button>
+                            </td>
+                            <td className='px-4 py-2'>
+                                <button className='bg-red-500' onClick={() => deleteEvent(event)}><strong>Delete</strong></button>
+                            </td>
+                        </tr >
+                    ))
+                    }
+                </tbody>
             </table >
         </>
     )
