@@ -93,14 +93,22 @@ export default function EventsTable() {
             <input type="text" name="title" placeholder="Event Title" onChange={(e) => setTitle(e.target.value)} required />
             <input type="date" name="date" onChange={(e) => setDate(e.target.value)} required />
             <button className='bg-green-500' onClick={() => addEvent(date, title)}>Create Event</button>
-            <select onChange={(e) => setSort(e.target.value)} value={sort}>Sort
-                <option value='event_date'>Event Date</option>
-                <option value='created_date'>Created Date</option>
-            </select>
-            <select onChange={(e) => setFilter(e.target.value)} value={filter}>Filter
-                <option value='none'>No Filter</option>
-                <option value='upcoming'>Only Upcoming</option>
-            </select>
+            <div className='flex flex-row justify-center px-4 py-2'>
+                <div>
+                    <h1>Sort</h1>
+                    <select onChange={(e) => setSort(e.target.value)} value={sort}>
+                        <option value='event_date'>Event Date</option>
+                        <option value='created_date'>Created Date</option>
+                    </select>
+                </div>
+                <div>
+                    <h1>Filter</h1>
+                    <select onChange={(e) => setFilter(e.target.value)} value={filter}>
+                        <option value='none'>No Filter</option>
+                        <option value='upcoming'>Only Upcoming</option>
+                    </select>
+                </div>
+            </div>
             <table className='mx-auto'>
                 <thead>
                     <tr>
@@ -115,7 +123,7 @@ export default function EventsTable() {
                         <tr key={event.id}>
                             <td className='px-4 py-2'>{event.title}</td>
                             <td className='px-4 py-2'>{event.date.toString()}</td>
-                            <td>
+                            <td className='px-4 py-2'>
                                 <select onChange={(e) => {
                                     setEdits(prev => ({ // updating state based on previous state to avoid overwriting
                                         ...prev, // keep all previous edits for all events
@@ -129,9 +137,9 @@ export default function EventsTable() {
                                     <option value='title'>Title</option>
                                     <option value='date'>Date</option>
                                 </select>
-                            </td>
-                            <td>
+
                                 <input
+                                    disabled={!edits[event.id]?.field || edits[event.id].field === 'none'}
                                     type={edits[event.id]?.field === 'date' ? 'date' : 'text'}
                                     onChange={(e) => {
                                         setEdits(prev => ({ // updating state based on previous state to avoid overwriting
@@ -142,8 +150,6 @@ export default function EventsTable() {
                                             }
                                         }))
                                     }} />
-                            </td>
-                            <td className='px-4 py-2'>
                                 <button className='bg-yellow-500' onClick={() => {
                                     if (!edits[event.id]?.field || !edits[event.id]?.value) {
                                         alert('Please select a field and enter a value.');
