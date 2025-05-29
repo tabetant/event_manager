@@ -1,4 +1,4 @@
-import { gt, asc, desc } from 'drizzle-orm';
+import { gt, asc, eq } from 'drizzle-orm';
 import { db } from '../../../db/index'
 import { events } from '../../../db/drizzle/schema'
 
@@ -30,4 +30,57 @@ export async function GET(request: Request) {
             : await db.select().from(events).orderBy(orderClause);
 
     return Response.json(allEvents);
+}
+
+export async function POST(request: Request) {
+    const body = await request.json();
+    const title = body.title as string;
+    const date = new Date(body.date as string);
+
+    await db.insert(events).values({
+        title: title as string, // Ensure type compatibility
+        date: date, // Use Date object directly if schema expects Date
+        createdAt: new Date(),
+    })
+    if (!title || !date || isNaN(date.getTime())) {
+        return new Response('Invalid input', { status: 400 });
+    }
+
+    return new Response(JSON.stringify({ message: 'Event created' }), {
+        status: 201,
+        headers: { 'Content-Type': 'application/json' },
+    });
+}
+
+export async function DELETE(request: Request) {
+    const body = await request.json();
+    const id = Number(body.id);
+
+    if (!id || isNaN(id)) {
+        return new Response('Invalid input', { status: 400 });
+    }
+    await db.delete(events).where(eq(events.id, id));
+
+    return new Response(JSON.stringify({ message: 'Event Deleted' }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+    });
+}
+
+export async function PATCH(request: Request) {
+    const body = await request.json();
+    const id = Number(body.id);
+    const component = body.component as string;
+    if (component === 'title') {
+        const newTitle = body.newValue as string;
+        await db.update(events).set({ title: newTitle }).where(eq(events.id, id));
+    }
+    else if (component === 'date') {
+        const newDate = new Date(body.newValue as string);
+        await db.update(events).set({ date: newDate }).where(eq(events.id, id));
+    }
+    else {
+        return;
+    }
+
 }
