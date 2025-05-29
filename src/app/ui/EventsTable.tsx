@@ -1,7 +1,5 @@
 'use client'
 import { useState, useEffect } from 'react';
-import { revalidatePath } from 'next/cache';
-import { db } from '../../db/index'
 
 type Event = {
     id: number;
@@ -94,6 +92,14 @@ export default function EventsTable() {
             <input type="text" name="title" placeholder="Event Title" onChange={(e) => setTitle(e.target.value)} required />
             <input type="date" name="date" onChange={(e) => setDate(e.target.value)} required />
             <button className='bg-green-500' onClick={() => addEvent(date, title)}>Create Event</button>
+            <select onChange={(e) => setSort(e.target.value)} value={sort}>Sort
+                <option value='event_date'>Event Date</option>
+                <option value='created_date'>Created Date</option>
+            </select>
+            <select onChange={(e) => setFilter(e.target.value)} value={filter}>Filter
+                <option value='none'>No Filter</option>
+                <option value='upcoming'>Only Upcoming</option>
+            </select>
             <table className='mx-auto'>
                 <thead>
                     <tr>
@@ -122,18 +128,26 @@ export default function EventsTable() {
                             </select>
                         </td>
                         <td>
-                            <input type={(edits[event.id].field === 'date') ? 'date' : 'text'} onChange={(e) => {
-                                setEdits(prev => ({ // updating state based on previous state to avoid overwriting
-                                    ...prev, // keep all previous edits for all events
-                                    [event.id]: { // updates specific event and adds/modifies its data
-                                        ...prev[event.id], // if there is already data for this event keep it
-                                        value: e.target.value, // set/overwrite the value to be what was selected
-                                    }
-                                }))
-                            }} />
+                            <input
+                                disabled={!edits[event.id]?.field}
+                                type={edits[event.id]?.field === 'date' ? 'date' : 'text'}
+                                onChange={(e) => {
+                                    setEdits(prev => ({ // updating state based on previous state to avoid overwriting
+                                        ...prev, // keep all previous edits for all events
+                                        [event.id]: { // updates specific event and adds/modifies its data
+                                            ...prev[event.id], // if there is already data for this event keep it
+                                            value: e.target.value, // set/overwrite the value to be what was selected
+                                        }
+                                    }))
+                                }} />
                         </td>
                         <td className='px-4 py-2'>
-                            <button onClick={() => editEvent(event.id, edits[event.id].field, edits[event.id].value)}>Edit Event</button>
+                            <button onClick={() => {
+                                if (!edits[event.id]?.field || !edits[event.id]?.value) {
+                                    alert('Please select a field and enter a value.');
+                                    return;
+                                } editEvent(event.id, edits[event.id].field, edits[event.id].value)
+                            }}>Edit Event</button>
                         </td>
                         <td className='px-4 py-2'>
                             <button onClick={() => deleteEvent(event)}>Delete</button>
