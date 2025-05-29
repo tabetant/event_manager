@@ -17,11 +17,25 @@ export default function EventsTable() {
     const [edits, setEdits] = useState<{ [id: number]: { field: string, value: string } }>({});
     const [date, setDate] = useState('');
     const [title, setTitle] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
 
     const fetchEvents = async () => {
-        const res = await fetch(`api/events?sort=${sort}&filter=${filter}`);
-        const data = await res.json();
-        setEvents(data);
+        setLoading(true);          // Optional: Show loading state
+        setError('');              // Clear previous errors
+        try {
+            const res = await fetch(`/api/events?sort=${sort}&filter=${filter}`);
+            if (!res.ok) {
+                throw new Error(`Fetch failed: ${res.status} ${res.statusText}`);
+            }
+            const data = await res.json();
+            setEvents(data);
+        } catch (err: any) {
+            console.error('Error fetching events:', err);
+            setError(err.message || 'Failed to load events');
+        } finally {
+            setLoading(false);
+        }
     };
 
     useEffect(() => {
@@ -38,7 +52,9 @@ export default function EventsTable() {
             console.error('Failed to delete event');
             return;
         }
+        setLoading(true);
         await fetchEvents();
+        setLoading(false);
     }
 
     async function editEvent(id: number, field: string, value: string) {
@@ -51,7 +67,9 @@ export default function EventsTable() {
             console.error('Failed to edit event');
             return;
         }
+        setLoading(true);
         await fetchEvents();
+        setLoading(false);
     }
 
     async function addEvent(date: string, title: string) {
@@ -64,11 +82,15 @@ export default function EventsTable() {
             console.error('Failed to add event');
             return;
         }
+        setLoading(true);
         await fetchEvents();
+        setLoading(false);
     }
 
     return (
         <>
+            {loading && <p>Loading...</p>}
+            {error && <p className='text-red-500'>{error}</p>}
             <input type="text" name="title" placeholder="Event Title" onChange={(e) => setTitle(e.target.value)} required />
             <input type="date" name="date" onChange={(e) => setDate(e.target.value)} required />
             <button className='bg-green-500' onClick={() => addEvent(date, title)}>Create Event</button>
