@@ -1,4 +1,4 @@
-import EventsTable from './ui/EventsTable'
+import EventsTable from '../ui/EventsTable'
 
 export default async function Page() {
   return (
