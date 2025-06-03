@@ -3,6 +3,7 @@ import { db } from '../../../db/index'
 import { events } from '../../../db/drizzle/schema'
 
 export async function GET(request: Request) {
+    l
     const url = new URL(request.url);
     const sort = url.searchParams.get('sort') ?? 'event_date';
     const filter = url.searchParams.get('filter') ?? 'none';
