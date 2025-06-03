@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
 import { supabase } from '@/db/client'
+import { router } from 'next/navigation'
 export default function SignupForm() {
     const inputsSchema = z.object(
         {
@@ -43,6 +44,7 @@ export default function SignupForm() {
             console.error('Signup Failed: ', error.message);
             return;
         }
+        router.push('/emailver');
     }
 
     return (

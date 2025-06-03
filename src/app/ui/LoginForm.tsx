@@ -38,7 +38,7 @@ export default function LoginForm() {
             console.error('Login Failed: ', error.message);
             return;
         }
-        router.push('/');
+        router.push('/dashboard');
     }
 
     return (
