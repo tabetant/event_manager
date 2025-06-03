@@ -1,5 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { supabase } from '@/db/client';
 
 type Event = {
     id: number;
@@ -9,6 +11,7 @@ type Event = {
 }
 
 export default function EventsTable() {
+    const router = useRouter();
     const [events, setEvents] = useState<Event[]>([]);
     const [sort, setSort] = useState('event_date');
     const [filter, setFilter] = useState('none');
@@ -17,7 +20,6 @@ export default function EventsTable() {
     const [title, setTitle] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
-
     const fetchEvents = async () => {
         setLoading(true);          // Optional: Show loading state
         setError('');              // Clear previous errors
@@ -39,6 +41,16 @@ export default function EventsTable() {
     useEffect(() => {
         fetchEvents();
     }, [sort, filter]);
+
+    useEffect(() => {
+        setLoading(true);
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            if (!session) {
+                router.push('/login');
+            }
+        });
+        setLoading(false);
+    }, []);
 
     async function deleteEvent(event: Event) {
         const res = await fetch('/api/events', {
