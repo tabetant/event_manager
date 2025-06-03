@@ -4,8 +4,9 @@ import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
 import { supabase } from '@/db/client'
-import { router } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 export default function SignupForm() {
+    const router = useRouter();
     const inputsSchema = z.object(
         {
             name: z.string().min(1, 'This is required'),
@@ -44,16 +45,18 @@ export default function SignupForm() {
             console.error('Signup Failed: ', error.message);
             return;
         }
-        router.push('/emailver');
+        router.push('/emailver')
     }
 
     return (
         <form className='text-center' onSubmit={handleSubmit(onSubmit)}>
-            <input {...register('email')} type='email' />
+            <input {...register('name')} type='text' placeholder='enter your name' />
+            <p>{errors.name?.message}</p>
+            <input {...register('email')} type='email' placeholder='enter email address' />
             <p>{errors.email?.message}</p>
-            <input {...register('password')} type='password' />
+            <input {...register('password')} type='password' placeholder='enter password' />
             <p>{errors.password?.message}</p>
-            <input type='submit' value='Log in' />
+            <input type='submit' value='Sign up' />
             <div>
                 <Link href='/login'>Already a member? Log In!</Link>
             </div>
