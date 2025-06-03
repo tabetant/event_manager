@@ -4,16 +4,16 @@ import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
 import { supabase } from '@/db/client'
-export default function SignupForm() {
-    const inputsSchema = z.object(
-        {
-            name: z.string().min(1, 'This is required'),
-            email: z.string().email('Invalid email'),
-            password: z.string().min(8, 'Password must be at least 8 characters'),
-        }
-    )
+import { useRouter } from 'next/navigation'
 
-    type Inputs = z.infer<typeof inputsSchema>
+export default function LoginForm() {
+    const router = useRouter();
+    const inputsSchema = z.object({
+        email: z.string().email('Invalid email address'),
+        password: z.string().min(8, 'Password must be at least 8 characters'),
+    });
+
+    type Inputs = z.infer<typeof inputsSchema>;
 
     const {
         register,
@@ -23,26 +23,22 @@ export default function SignupForm() {
     } = useForm<Inputs>({
         resolver: zodResolver(inputsSchema),
         defaultValues: {
-            name: '',
             email: '',
             password: '',
         }
     });
 
     const onSubmit: SubmitHandler<Inputs> = async (data) => {
-        const { name, email, password } = data;
-        const { error } = await supabase.auth.signUp({
+        const { email, password } = data;
+        const { error } = await supabase.auth.signInWithPassword({
             email,
-            password,
-            options:
-            {
-                data: { name }
-            }
-        });
+            password
+        })
         if (error) {
-            console.error('Signup Failed: ', error.message);
+            console.error('Login Failed: ', error.message);
             return;
         }
+        router.push('/');
     }
 
     return (
@@ -53,8 +49,8 @@ export default function SignupForm() {
             <p>{errors.password?.message}</p>
             <input type='submit' value='Log in' />
             <div>
-                <Link href='/login'>Already a member? Log In!</Link>
+                <Link href='/signup'>Not a member? Sign Up!</Link>
             </div>
         </form>
     )
-}
+}   
