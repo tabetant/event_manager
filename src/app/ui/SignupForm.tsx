@@ -48,8 +48,11 @@ export default function SignupForm() {
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
             <input {...register('name')} type='text' />
+            <p>{errors.name?.message}</p>
             <input {...register('email')} type='email' />
+            <p>{errors.email?.message}</p>
             <input {...register('password')} type='password' />
+            <p>{errors.password?.message}</p>
             <button type='submit'>Sign Up</button>
             <Link href='/login'>Already a member? Log in !</Link>
         </form>
